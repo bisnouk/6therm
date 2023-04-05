@@ -11,3 +11,20 @@ It controls the triggering or stopping of the boiler, the starting and stopping 
 The two low power outputs can be provided by a two-way 12V relay kit.
 
 It is developed on the Arduino environment which supports the RP-2040.
+
+
+Icon images are stored in tabs ^ e.g. DASH_01.h etc more than one icon can be in a header file
+Arrays containing FLASH images can be created with UTFT library tool: (libraries\UTFT\Tools\ImageConverter565.exe)
+Convert to .c format then copy into a new tab
+
+This sketch loading images from arrays stored in program (FLASH) memory.
+
+Works with TFT_eSPI library here: https://github.com/Bodmer/TFT_eSPI
+
+Make sure all the display driver and pin connections are correct by
+editing the User_Setup.h file in the TFT_eSPI library folder.
+
+
+
+
+

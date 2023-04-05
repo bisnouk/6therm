@@ -1,5 +1,5 @@
 # 6therm
- Temperature and ventilation management for Eberpasher heating
+ Temperature and ventilation management for D4WSC Eberpasher heating
  
 Old generation Eberspacher heaters are not delivered with a system for regulating the ambient temperature and regulating the supply ventilation of the unit heaters.
 In addition, fan heaters often come with a noisy fan and a 2 or 3 speed switch.
@@ -13,7 +13,7 @@ The two low power outputs can be provided by a two-way 12V relay kit.
 It is developed on the Arduino environment which supports the RP-2040.
 
 
-Icon images are stored in tabs ^ e.g. DASH_01.h etc more than one icon can be in a header file
+All icon images are stored in tabs ^ e.g. DASH_01.h
 Arrays containing FLASH images can be created with UTFT library tool: (libraries\UTFT\Tools\ImageConverter565.exe)
 Convert to .c format then copy into a new tab
 

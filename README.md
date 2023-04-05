@@ -12,6 +12,22 @@ The two low power outputs can be provided by a two-way 12V relay kit.
 
 It is developed on the Arduino environment which supports the RP-2040.
 
+Cool mode : low ventilation for silent mode
+
+![6therm](https://user-images.githubusercontent.com/28572566/230140698-9f757220-fcbf-4bb7-bf8b-e357f0c5ffc9.jpg)
+
+Hot water mode : no ventilation, only heating for the plate heat exchanger to heat the water for the shower.  
+
+![Hot water mode](https://user-images.githubusercontent.com/28572566/230140735-2fa0ed35-701b-44e1-87c8-fa6bb51cc64f.jpg)
+
+Manual mode : manual fan flow
+
+![Manual mode](https://user-images.githubusercontent.com/28572566/230140749-62b174cd-3b76-4129-92df-0000e4c9dfe0.jpg)
+
+Stop mode : only temperature display
+
+![Stop Mode](https://user-images.githubusercontent.com/28572566/230140762-1a4582c0-b35e-4378-bcce-c362dff10605.jpg)
+
 
 All icon images are stored in tabs ^ e.g. DASH_01.h
 Arrays containing FLASH images can be created with UTFT library tool: (libraries\UTFT\Tools\ImageConverter565.exe)

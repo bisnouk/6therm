@@ -5,7 +5,7 @@ Old generation Eberspacher heaters are not delivered with a system for regulatin
 In addition, fan heaters often come with a noisy fan and a 2 or 3 speed switch.
 For use in a motorhome or fitted cell, it is advantageous to be able to finely modulate the blowing to reduce noise.
 
-The proposed module uses a Raspberry Pico and a touch graphic display from WareShare.
+The proposed module uses a Raspberry Pico and a touch graphic display from WareShare (https://www.waveshare.com/pico-restouch-lcd-2.8.htm).
 It controls the triggering or stopping of the boiler, the starting and stopping of the fan and its speed by a PWM control.
 
 The two low power outputs can be provided by a two-way 12V relay kit.

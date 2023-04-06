@@ -36,16 +36,15 @@
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 ////                                                                        ////
-#define REL_PIN  14
 #define CMD_PIN  2
 #define TEMP_PIN 1
 #define RPM_PIN  4
 #define PWM_PIN  6
 #define VENT_PIN 7
-#define X_TEMP   0 //48
+#define X_TEMP   0 
 #define Y_TEMP   80
-#define X_CONS   65 //90
-#define Y_CONS   185 //176
+#define X_CONS   65 
+#define Y_CONS   185 
 #define X_ETAT   60
 #define Y_ETAT   5
 #define X_VENT   210
@@ -54,18 +53,18 @@
 #define Y_TEXT   5
 #define X_DEBUG  50
 #define Y_DEBUG  90
-#define X_BA     0 //-11
+#define X_BA     0 
 #define Y_BA     0
-#define X_BB     0 //-11
+#define X_BB     0
 #define Y_BB     180
-#define X_BX     260 //71
+#define X_BX     260
 #define Y_BX     0
-#define X_BY     260 //71
+#define X_BY     260
 #define Y_BY     180
 #define BLMAX    255
 #define BLMIN    5
 #define TVEILLE  3600
-#define TCOMMAND 180 // nombre de seconde avant mise à l'arrêt de la chaudière
+#define TCOMMAND 180 
 #define WTFT     320
 #define HTFT     240
 
@@ -75,19 +74,12 @@
 
 static float          bufferTemp[10];
 
-// rom_address_t         address{};
 bool                  topSeconde = false;
 uint8_t               modeArret = 0;
 uint8_t               mode1     = 0;
-uint16_t              tempoChaud = 0;    // Temporisation Alimentation Chaudiere
 uint16_t              tempoCmdChaud = 0; // Temporisation Commande Chaudiere 
 uint16_t              tempoMode = 0;     // Temporisation avant activation mode fonctionnement
-uint16_t              tempoVeille = 0;   // Temporisation arret automatique en mode nuit
-// volatile bool         topRpm = false;
-// absolute_time_t       topRpm1;
-// absolute_time_t       topRpm2;
-// uint16_t              rpmFan;
-
+uint16_t              tempoVeille = 0;   // Temporisation arret automatique en mode retardé
 float                 valTemperature;
 float                 valConsigne;
 int8_t                modeFonc;
@@ -96,7 +88,6 @@ int8_t                modeVeille;
 uint8_t               consigneVentil;
 uint8_t               sveConsigneVentil = 255;
 uint8_t               cmdChaudiere;     // Commande du relais signal de mise en chauffe
-uint8_t               alimChaudiere;    // Commande du relais alimentation generale 12V du chauffage
 uint8_t               etatVentilateur;  // Commande du relais alimentation du ventilateur
 int8_t                minVentil = 10;
 int8_t                defautVentil = 0;
@@ -168,8 +159,6 @@ RPI_PICO_Timer ITimer0(0);
 ////                                                                        ////
 void setup() {
 
-
-
   ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler0);
   initialisation();
 
@@ -201,7 +190,7 @@ void setup() {
 ////                           Programme principal                          ////
 ////                                                                        ////
 ////     0.1 Version initiale                                               ////
-////     0.2 Abandon de la gestion de l'alimentation de la chaudière        ////
+////                                                                        ////
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 ////                                                                        ////
@@ -216,7 +205,6 @@ void loop() {
       valTemperature = 0;
       for (i = 0 ; i < 10 ; ++i) valTemperature += bufferTemp[i];
       valTemperature /= 10;
-      // if (modeArret) tempoChaud++;
       if (modeFonc == 2) {
         if (modeVeille != 0) tempoVeille++;
         tempoCmdChaud++;
@@ -225,29 +213,11 @@ void loop() {
       tempoMode++;
       topSeconde = false;
   }
-  
-  // spt.loadFont(AA_FONT_TEXT); // Must load the font first into the sprite class
-  
-  // spt.setTextColor(TFT_YELLOW, TFT_BLACK); // Set the sprite font colour and the background colour
-
-  // tft.setCursor(150, 10);          // Set the tft cursor position, yes tft position!
-  // spt.printToSprite("mode "+(String)modeFonc + "-");    // Prints to tft cursor position, tft cursor NOT moved
-  // spt.unloadFont(); // Remove the font from sprite class to recover memory used
-
 
   switch (modeFonc)
   {
   case 0:
     /* Mode STOP */ 
-    // if (modeArret) {
-    //   if (tempoChaud > 500) {
-    //     tempoChaud = 0;
-    //     alimChaudiere = 0;
-    //     modeArret = 0;
-    //   }
-    // } else {
-    //   alimChaudiere = 0;
-    // }
     modeVeille = 0;
     tempoVeille = 0;
     cmdChaudiere = 0; // Arret chauffage
@@ -268,34 +238,27 @@ void loop() {
     }
     if (tempoMode > 5) {
       tempoMode = 100;
-      // alimChaudiere = 1;
       cmdChaudiere = 1;
       etatVentilateur = 0;
-      // alimentationChaudiere(alimChaudiere);
       commandeChaudiere(cmdChaudiere);           
     }
     modeVeille = 0;
     tempoVeille = 0;
-    // pwmVentilateur(10); // Ventilateur à 10%
     commandeVentilateur(etatVentilateur);     
     renderTemperature(valTemperature, X_TEMP, Y_TEMP);      
     break;
   case 2:
     /* Mode Chauffage Ventilation Automatique */
-    consigneVentil = regulVentil(valTemperature, valConsigne, modeVentil);  
-        
+    consigneVentil = regulVentil(valTemperature, valConsigne, modeVentil);        
     if (tempoMode > 5) {
       tempoMode = 100;
-      // alimChaudiere = 1;
-      // alimentationChaudiere(alimChaudiere);
       if (tempoVeille > TVEILLE) {
         tempoVeille = 0;
         modeFonc = 0;
-        // modeArret = 1;
         modeVeille = 0;
       }
       if (consigneVentil == 0) {
-        // etatVentilateur = 0;
+        etatVentilateur = 0;
         if (tempoCmdChaud > TCOMMAND) {
           tempoCmdChaud = 0;
           cmdChaudiere = 0;
@@ -304,13 +267,13 @@ void loop() {
       else {
         tempoCmdChaud = 0;
         cmdChaudiere = 1;
-        // etatVentilateur = 1;
+        etatVentilateur = 1;
       }
-      commandeChaudiere(cmdChaudiere);   
-      etatVentilateur = asservVentilateur(valTemperature, valConsigne);             
-      commandeVentilateur(etatVentilateur);  
+      commandeChaudiere(cmdChaudiere);          
+      commandeVentilateur(etatVentilateur);        
       pwmVentilateur(consigneVentil);
     }
+
     renderTemperature(valTemperature, X_TEMP, Y_TEMP);
     renderConsigne(valConsigne, X_CONS, Y_CONS);
     renderVentil(consigneVentil ,X_VENT, Y_VENT);      
@@ -321,15 +284,11 @@ void loop() {
     /* Mode Chauffage Ventilation Manuelle */
     if (tempoMode > 5) {
       tempoMode = 100;
-      // alimChaudiere = 1;
       cmdChaudiere = 1;
       etatVentilateur = 1;
-
-      // alimentationChaudiere(alimChaudiere);
-      commandeChaudiere(cmdChaudiere);  
-
+      
       if (consigneVentil == 0) {
-        // etatVentilateur = 0;
+        etatVentilateur = 0;
         if (tempoCmdChaud > TCOMMAND) {
           tempoCmdChaud = 0;
           cmdChaudiere = 0;
@@ -338,15 +297,14 @@ void loop() {
       else {
         tempoCmdChaud = 0;
         cmdChaudiere = 1;
-        // etatVentilateur = 1;
-      }
-      etatVentilateur = asservVentilateur(valTemperature, valConsigne);             
-      commandeVentilateur(etatVentilateur);         
+        etatVentilateur = 1;
+      }      
+      commandeChaudiere(cmdChaudiere);          
+      commandeVentilateur(etatVentilateur);        
       pwmVentilateur(consigneVentil);
     }
     modeVeille = 0;
     tempoVeille = 0;
-
     renderModeVentil(modeVentil, TFT_BLACK);
     renderTemperature(valTemperature, X_TEMP, Y_TEMP);
     renderConsigne(valConsigne, X_CONS, Y_CONS);
@@ -445,7 +403,6 @@ void loop() {
     spl.setTextColor(TFT_GREEN, TFT_DARKGREEN);
     spl.setTextDatum(TL_DATUM);
 
-    spl.drawString("REL Chaud", 2, 2);
     spl.drawString("CMD Chaud", 2, 22);
     spl.drawString("REL Vent ", 2, 42);
   
@@ -453,7 +410,7 @@ void loop() {
       spl.drawCircle(106, 10 + (20 * i), 9, TFT_LIGHTGREY);
       spl.drawCircle(106, 10 + (20 * i), 7, TFT_DARKGREY);
     }
-    // if (alimChaudiere)   spl.drawSpot(106,  10, 7, TFT_RED, TFT_DARKGREEN);
+
     if (cmdChaudiere)    spl.drawSpot(106, 30, 7, TFT_RED, TFT_DARKGREEN);
     if (etatVentilateur) spl.drawSpot(106, 50, 7, TFT_RED, TFT_DARKGREEN);
 
@@ -483,13 +440,11 @@ void initialisation(void)
 
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(TFT_BL, OUTPUT);
- // pinMode(TEMP_PIN, INPUT);
-  // pinMode(REL_PIN, OUTPUT);
+
   pinMode(CMD_PIN, OUTPUT);
   pinMode(VENT_PIN, OUTPUT);
   pinMode(PWM_PIN, OUTPUT);
 
-  // digitalWrite(REL_PIN, 1);
   digitalWrite(CMD_PIN, 1);
   digitalWrite(VENT_PIN, 1);
 
@@ -509,10 +464,6 @@ void initialisation(void)
   digitalWrite(LED_BUILTIN, LOW);   
 
   watchdog_update();
-
-
-  // touch_calibrate();
-
 
 }
 ////                                                                        ////
@@ -551,7 +502,7 @@ void commandeVentilateur(int8_t cmdVentil)
 ////      Calcule l'asservissement du ventilateur 0 à 100%                  ////
 int regulVentil(float temperature, float consigne, int8_t modeVent)
 {
-  float    k = 200;
+  float    k = 50;
   float  coefNorme = 1;
   float  deltaTemp;
   float  cmdVentil;
@@ -563,17 +514,17 @@ int regulVentil(float temperature, float consigne, int8_t modeVent)
   switch (modeVent)
   {
   case 0: /* Silence */
-    coefNorme = 0.4;
+    coefNorme = 0.3;
     modeVeille = 0;
     tempoVeille = 0;   
     break;
   case 1: /* Cool */
-    coefNorme = 0.6;
+    coefNorme = 0.5;
     modeVeille = 0;
     tempoVeille = 0;  
     break;
   case 2: /* Normal */
-    coefNorme = 0.8;
+    coefNorme = 0.75;
     modeVeille = 0;
     tempoVeille = 0;   
     break;
@@ -582,7 +533,7 @@ int regulVentil(float temperature, float consigne, int8_t modeVent)
     modeVeille = 0;
     tempoVeille = 0;  
     break;
-  case 4: /* 60 minutes */
+  case 4: /* 60 Minutes */
     coefNorme = 0.3;
     modeVeille = 1;
     break;
@@ -599,12 +550,12 @@ int regulVentil(float temperature, float consigne, int8_t modeVent)
 int8_t asservVentilateur(float temperature, float consigne)
 {
   float coefDelta = 0.5; 
-  static int8_t alimVentilateur = 1;
+  int8_t alimVentilateur;
   watchdog_update();
   if (temperature > (consigne + coefDelta)) {
     alimVentilateur = 0;
   }
-  if (temperature <= (consigne - coefDelta)) {
+  if (temperature <= consigne) {
     alimVentilateur = 1;
   }
   watchdog_update();
@@ -617,13 +568,6 @@ void commandeChaudiere(int8_t cmdChaud)
 {
   digitalWrite(CMD_PIN, !cmdChaud);
 }
-////                                                                        ////
-////////////////////////////////////////////////////////////////////////////////
-////      Active la commande de mise sous tension de la chaudière           ////
-// void alimentationChaudiere(int8_t alimChaud)
-// {
-//   digitalWrite(REL_PIN, !alimChaud);
-// }
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 ////      Affiche la température mesurée                                    ////
@@ -789,7 +733,7 @@ void renderModeVentil(int8_t modeVent, uint16_t coulTexte)
     spr.drawString("Maxi",50,25);
     break;
   case 4:
-    spr.drawString("60 Minutes",50,25);
+    spr.drawString("60 minutes",50,25);
     break;
   }  
 
@@ -807,27 +751,22 @@ void initButtons() {
   btnHG.initButtonUL(X_BA, Y_BA, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "BHG", 1);
   btnHG.setPressAction(btnHG_pressAction);
   btnHG.setReleaseAction(btnHG_releaseAction);
-  // btnHG.drawSmoothButton(false, 3, TFT_BLACK); // 3 is outline width, TFT_BLACK is the surrounding background colour for anti-aliasing
 
   btnBG.initButtonUL(X_BB, Y_BB, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "BBG", 1);
   btnBG.setPressAction(btnBG_pressAction);
   btnBG.setReleaseAction(btnBG_releaseAction);
-  // btnBG.drawSmoothButton(false, 3, TFT_BLACK); // 3 is outline width, TFT_BLACK is the surrounding background colour for anti-aliasing
 
   btnHD.initButtonUL(X_BX, Y_BX, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "BHD", 1);
   btnHD.setPressAction(btnHD_pressAction);
   btnHD.setReleaseAction(btnHD_releaseAction);
-  // btnHD.drawSmoothButton(false, 3, TFT_BLACK); // 3 is outline width, TFT_BLACK is the surrounding background colour for anti-aliasing
 
   btnBD.initButtonUL(X_BY, Y_BY, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "BBD", 1);
   btnBD.setPressAction(btnBD_pressAction);
   btnBD.setReleaseAction(btnBD_releaseAction);
-  // btnBD.drawSmoothButton(false, 3, TFT_BLACK); // 3 is outline width, TFT_BLACK is the surrounding background colour for anti-aliasing
  
   btnLog.initButtonUL(X_BA, 90, BUTTON_W, BUTTON_H, TFT_WHITE, TFT_RED, TFT_BLACK, "Log", 1);
   btnLog.setPressAction(btnLog_pressAction);
   btnLog.setReleaseAction(btnLog_releaseAction);
-  
 }
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
@@ -836,13 +775,11 @@ void initButtons() {
 void btnHG_pressAction(void)
 {
   if (btnHG.justPressed()) {
-    // btnHG.drawSmoothButton(true);
     btnHG.setPressTime(millis());
   }
   if (millis() - btnHG.getPressTime() >= 3000) {
     bouton = 5;
     modeArret = 1;
-    tempoChaud = 0;
     incrementFonc = +1;
     if (modeFonc != 0) {
       tft.fillScreen(TFT_BLACK);
@@ -859,7 +796,6 @@ void btnHG_releaseAction(void)
     bouton = 1;
   }
   else bouton = 0;
-  // btnHG.drawSmoothButton(false);
 }
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
@@ -867,12 +803,10 @@ void btnHG_releaseAction(void)
 ////                                                                        ////
 void btnBG_pressAction(void)
 {
-  // btnBG.drawSmoothButton(true);
 
 }
 void btnBG_releaseAction(void)
 {
-  // btnBG.drawSmoothButton(false);
   if (btnBG.justReleased()) {
     bouton = 2;
   }
@@ -883,12 +817,10 @@ void btnBG_releaseAction(void)
 ////                                                                        ////
 void btnHD_pressAction(void)
 {
-  // btnHD.drawSmoothButton(true);
  
 }
 void btnHD_releaseAction(void)
 {
-  // btnHD.drawSmoothButton(false);
   if (btnHD.justReleased()) {
     bouton = 3;
     sveConsigneVentil = 255;
@@ -900,11 +832,10 @@ void btnHD_releaseAction(void)
 ////                                                                        ////
 void btnBD_pressAction(void)
 {
-  // btnBD.drawSmoothButton(true);
+
 }
 void btnBD_releaseAction(void)
 {
-  // btnBD.drawSmoothButton(false);
   if (btnBD.justReleased()) {
     bouton = 4;
   }
@@ -922,79 +853,4 @@ void btnLog_pressAction(void)
 void btnLog_releaseAction(void)
 {
 
-}
-////                                                                        ////
-
-////                                                                        ////
-////////////////////////////////////////////////////////////////////////////////
-////                                ////
-////                                                                        ////
-
-////                                                                        ////
-////////////////////////////////////////////////////////////////////////////////
-////              Calibration de l'écran                                    ////
-////                                                                        ////
-void touch_calibrate()
-{
-  uint16_t calData[5];
-  uint8_t calDataOK = 0;
-
-  // check file system exists
-  if (!LittleFS.begin()) {
-    Serial.println("Formating file system");
-    LittleFS.format();
-    LittleFS.begin();
-  }
-
-  // check if calibration file exists and size is correct
-  if (LittleFS.exists(CALIBRATION_FILE)) {
-    if (REPEAT_CAL)
-    {
-      // Delete if we want to re-calibrate
-      LittleFS.remove(CALIBRATION_FILE);
-    }
-    else
-    {
-      File f = LittleFS.open(CALIBRATION_FILE, "r");
-      if (f) {
-        if (f.readBytes((char *)calData, 14) == 14)
-          calDataOK = 1;
-        f.close();
-      }
-    }
-  }
-
-  if (calDataOK && !REPEAT_CAL) {
-    // calibration data valid
-    tft.setTouch(calData);
-  } else {
-    // data not valid so recalibrate
-    tft.fillScreen(TFT_BLACK);
-    tft.setCursor(20, 0);
-    tft.setTextFont(2);
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-
-    tft.println("Touch corners as indicated");
-
-    tft.setTextFont(1);
-    tft.println();
-
-    if (REPEAT_CAL) {
-      tft.setTextColor(TFT_RED, TFT_BLACK);
-      tft.println("Set REPEAT_CAL to false to stop this running again!");
-    }
-
-    tft.calibrateTouch(calData, TFT_MAGENTA, TFT_BLACK, 15);
-
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.println("Calibration complete!");
-
-    // store data
-    File f = LittleFS.open(CALIBRATION_FILE, "w");
-    if (f) {
-      f.write((const unsigned char *)calData, 14);
-      f.close();
-    }
-  }
 }

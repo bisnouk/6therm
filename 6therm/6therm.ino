@@ -190,6 +190,7 @@ void setup() {
 ////                           Programme principal                          ////
 ////                                                                        ////
 ////     0.1 Version initiale                                               ////
+////     0.2 Abandon de la gestion de l'alimentation de la chaudière        ////
 ////                                                                        ////
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////

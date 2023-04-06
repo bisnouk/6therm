@@ -19,12 +19,14 @@ Main features are:
     mode 1 : Hot water / Shower mode : Heater ON but no inboard fan 
 	mode 2 : Auto temperature controller mode : the fan speed is automatically regulated according to the temperature set point. 
         	 The more the temperature is below the set point, the higher the speed.
-			 By using the mode change button (double arrow), it is possible to change the automatic ventilation power regulation mode: 
-			 Silent, Cool, Normal, Maxi, 60 minutes, i.e. Silent mode with automatic shutdown after 60 minutes
-    mode 3 : Manual fan speed controller mode : the fan speed is adjusted according to the plus or minus keys
+		 By using the mode change button (double arrow), it is possible to change the automatic ventilation power regulation mode: 
+		 Silent, Cool, Normal, Maxi, 60 minutes, i.e. Silent mode with automatic shutdown after 60 minutes
+    mode 3 : Manual fan speed controller mode : the fan speed is adjusted by using the mode change button (double arrow) : 0% -> 100% -> 0%
 
     measurement of ambient temperature via OneWire probe : DS18B20
     TFT touch display for showing status information and for setting pwm or target temperature
+
+![6therm](https://user-images.githubusercontent.com/28572566/230412698-30652a00-19bc-4547-a259-b867500a85ab.png)
 
 Even if you don't want to use all of these features, the project can hopefully easily be simplified or extended.
 
@@ -48,7 +50,7 @@ Stop mode : only temperature display
 ![Stop Mode](https://user-images.githubusercontent.com/28572566/230140762-1a4582c0-b35e-4378-bcce-c362dff10605.jpg)
 
 
-All icon images are stored in tabs ^ e.g. DASH_01.h
+All icon images are stored in tabs e.g. DASH_01.h
 Arrays containing FLASH images can be created with UTFT library tool: (libraries\UTFT\Tools\ImageConverter565.exe)
 Convert to .c format then copy into a new tab
 

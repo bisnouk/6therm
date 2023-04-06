@@ -1,7 +1,7 @@
 # 6therm
- Temperature and ventilation management for D4WSC Eberpasher heating
+ Temperature and ventilation management for D4WSC Eberspächer heating
  
-Old generation Eberspacher heaters are not delivered with a system for regulating the ambient temperature and regulating the supply ventilation of the unit heaters.
+Old generation Eberspächer heaters are not delivered with a system for regulating the ambient temperature and regulating the supply ventilation of the unit heaters.
 In addition, fan heaters often come with a noisy fan and a 2 or 3 speed switch.
 For use in a motorhome or fitted cell, it is advantageous to be able to finely modulate the blowing to reduce noise.
 
